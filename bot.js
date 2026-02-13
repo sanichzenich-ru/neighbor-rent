@@ -8,7 +8,7 @@ bot.start((ctx) => {
   ctx.reply('Добро пожаловать в Соседский прокат!', {
     reply_markup: {
       keyboard: [
-        [{ text: "Открыть прокат", web_app: { url: 'https://ggggtttt121488-ai.github.io/neighbor-rent/' } }]
+        [{ text: "Открыть прокат", web_app: { url: 'https://sanichzenich-ru.github.io/neighbor-rent/' } }]
       ],
       resize_keyboard: true
     }

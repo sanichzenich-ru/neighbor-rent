@@ -7,49 +7,34 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Увеличенный шрифт для лучшей читаемости */
         body { font-size: 18px; }
-        button { cursor: pointer; }
+        .admin-section { display: none; } /* Скрыто по умолчанию */
     </style>
 </head>
-<body class="bg-gray-100 p-4">
+<body class="bg-gray-100 p-4 pb-32">
     <h1 class="text-3xl font-extrabold mb-8 text-center text-blue-600 uppercase">Прокат инструмента</h1>
     
     <div id="item-list" class="space-y-4">
         <div class="bg-white p-5 rounded-2xl shadow-md flex items-center border-l-8 border-orange-500">
-            <div class="w-16 h-16 bg-orange-100 rounded-lg flex-shrink-0 flex items-center justify-center text-3xl">🔨</div>
             <div class="ml-4 flex-grow">
                 <h2 class="font-bold text-xl text-gray-900">Перфоратор Makita</h2>
                 <p class="text-gray-600 font-semibold">500 ₽ / сутки</p>
             </div>
-            <button onclick="orderItem('Перфоратор Makita')" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold active:scale-95 transition-transform">ВЗЯТЬ</button>
+            <button onclick="orderItem('Перфоратор Makita')" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold active:scale-95">ВЗЯТЬ</button>
         </div>
+    </div>
 
-        <div class="bg-white p-5 rounded-2xl shadow-md flex items-center border-l-8 border-orange-500">
-            <div class="w-16 h-16 bg-orange-100 rounded-lg flex-shrink-0 flex items-center justify-center text-3xl">⚙️</div>
-            <div class="ml-4 flex-grow">
-                <h2 class="font-bold text-xl text-gray-900">Болгарка (УШМ)</h2>
-                <p class="text-gray-600 font-semibold">400 ₽ / сутки</p>
-            </div>
-            <button onclick="orderItem('Болгарка')" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold active:scale-95 transition-transform">ВЗЯТЬ</button>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl shadow-sm flex items-center border-l-8 border-orange-500">
-            <div class="w-16 h-16 bg-orange-100 rounded-lg flex-shrink-0 flex items-center justify-center text-3xl">🪛</div>
-            <div class="ml-4 flex-grow">
-                <h2 class="font-bold text-xl text-gray-900">Шуруповерт</h2>
-                <p class="text-gray-600 font-semibold">300 ₽ / сутки</p>
-            </div>
-            <button onclick="orderItem('Шуруповерт')" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold active:scale-95 transition-transform">ВЗЯТЬ</button>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl shadow-sm flex items-center border-l-8 border-orange-500">
-            <div class="w-16 h-16 bg-orange-100 rounded-lg flex-shrink-0 flex items-center justify-center text-3xl">📏</div>
-            <div class="ml-4 flex-grow">
-                <h2 class="font-bold text-xl text-gray-900">Лазерный уровень</h2>
-                <p class="text-gray-600 font-semibold">400 ₽ / сутки</p>
-            </div>
-            <button onclick="orderItem('Лазерный уровень')" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold active:scale-95 transition-transform">ВЗЯТЬ</button>
+    <div class="mt-12 p-4 bg-white rounded-2xl border-2 border-dashed border-gray-300">
+        <button onclick="toggleAdmin()" class="w-full text-gray-500 font-bold py-2 text-sm uppercase">
+            ⚙️ Панель управления (для владельца)
+        </button>
+        
+        <div id="admin-panel" class="admin-section mt-4 space-y-4">
+            <input type="text" id="new-name" placeholder="Название (напр. Пылесос)" class="w-full p-4 border rounded-xl text-lg">
+            <input type="text" id="new-price" placeholder="Цена (напр. 1000 ₽ / сутки)" class="w-full p-4 border rounded-xl text-lg">
+            <button onclick="sendNewItem()" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-xl uppercase">
+                Создать позицию
+            </button>
         </div>
     </div>
 
@@ -57,16 +42,30 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    const userName = tg.initDataUnsafe?.user?.first_name || "Сосед";
-    const welcomeText = document.createElement('p');
-    welcomeText.innerHTML = `Привет, <b>${userName}</b>! Выбирай инструмент:`;
-    welcomeText.className = "text-center text-gray-700 mb-6 text-xl";
-    
-    document.getElementById('item-list').prepend(welcomeText);
-
+    // Функция для заказа
     function orderItem(itemName) {
-        tg.sendData("Заявка на инструмент: " + itemName);
-        tg.close();
+        tg.sendData("ORDER:" + itemName);
+        setTimeout(() => tg.close(), 500);
+    }
+
+    // Показать/скрыть админку
+    function toggleAdmin() {
+        const panel = document.getElementById('admin-panel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Отправить данные для новой позиции в бот
+    function sendNewItem() {
+        const name = document.getElementById('new-name').value;
+        const price = document.getElementById('new-price').value;
+        
+        if (!name || !price) {
+            alert("Заполни все поля!");
+            return;
+        }
+
+        tg.sendData(`NEW_ITEM|${name}|${price}`);
+        setTimeout(() => tg.close(), 500);
     }
 </script>
 </body>
